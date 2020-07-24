@@ -66,15 +66,10 @@ changes can be broken down into:
 
 # 3. Overall Protocol Shape
 
-At a high-level, this new protocol ("Mapeo Protocol") is a layered protocol
-consisting of two channels:
+At a high-level, this new protocol ("Mapeo Protocol") is actually two separate protocols, each likely running on different ports:
 
-1. a plaintext communication sidechannel, the "Plaintext Channel"
-2. an end-to-end encrypted primary communication channel, the "Secure Channel"
-
-These two channels are multiplexed over a single transport steam, using
-[muxrpc][]. This allows the application and upgrade protocols to operate over
-transports that expose only a single stream, such as Bluetooth, LoRa, or X-Bee.
+1. a plaintext channel for facilitating the transfer of peer-to-peer app upgrades, the "Upgrade Channel"
+2. an end-to-end encrypted channel for data synchronization, the "Secure Channel"
 
 Both will use the [muxrpc][] RPC (Remote Procedure Call) library for
 peer-to-peer request/response/streaming communications. This was chosen over a
@@ -82,10 +77,9 @@ normal request/response library because some RPC responses can be very large
 (e.g. application binaries) which will need to be streamed gradually without
 blocking the entire channel.
 
-## 3.1 Plaintext Channel
+This approach is designed for devices locating each other and communicating over either a local network or the internet. Once Mapeo is ready for synchronization over single-stream transports such as Bluetooth or LoRa, a modified protocol will need to be designed that meets each medium's unique needs & constraints.
 
-This channel is reserved for plaintext communications that can potentially be
-eavesdropped by malicious or passive monitoring third parties.
+## 3.1 Upgrade Channel
 
 The purpose of this channel is to have a means of communication between peers
 that will remain stable and unchanged for the forseeable future. This is
@@ -120,7 +114,7 @@ between peers that requires privacy will be passed through this channel.
 
 Finally, if the secure channel cannot be established due to incompatibility
 reasons (such as an update to another encryption algorithm), it should still
-permit the plaintext channel to be established and used. However, if the secure
+permit the upgrade channel to be established and used. However, if the secure
 channel fails to establish because of security reasons (eg. detecting a
 man-in-the-middle attack), it should abort the connection entirely.
 
@@ -129,7 +123,15 @@ man-in-the-middle attack), it should abort the connection entirely.
 The [muxrpc][] protocol wire format is documented on the
 [Secure Scuttlebutt Protocol Guide][ssb-proto-rpc].
 
-# 4. Plaintext Channel RPCs
+## 3.4 Transport
+
+Each peer runs a TCP server locally (TODO: what ports?) and can make TCP connections to other peers.
+
+## 3.4 Peer Discovery
+
+TODO: discovery-swarm? hyperswarm?
+
+# 4. Upgrade Channel RPCs
 
 A peer can use this channel to request a listing of app upgrades (not limited
 to its own platform/architecture), download app binaries over it, get peer
@@ -159,19 +161,17 @@ of the form
 
 ```js
 {
-  name: "MapeoDesktop-v4.1.3-armv7.zip",
+  id: "a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447",
+  hash: "sha256",
   type: "application/zip",
   version: "4.1.3",
-  platform: "desktop" | "mobile",
   os: "windows" | "linux" | "macos" | "android",
   arch: ["x86" | "x86_64" | "armeabi-v7a" | "arm64-v8a"],
-  size: 60241185,
-  sha256sum: "a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447"
+  size: 60241185
 }
 ```
 
-Each `name` must be unique, and should self-describe the file as well as
-possible.
+Each `id` is the hash of the binary, with the hashing method denoted under `hash`.
 
 Not included (yet) are fields for valid existing Mapeo version ranges to
 upgrade from, which will be needed for incremental updates (such as javascript
@@ -197,7 +197,7 @@ include an object of the form
 
 ```js
 {
-  plaintextProtocolVersion: "1.0.0",
+  upgradeProtocolVersion: "1.0.0",
   secureProtocolVersion: "1.0.0"
 }
 ```
@@ -238,8 +238,8 @@ If a secure channel already exists, further calls to this RPC must fail.
 
 # 5. Secure Channel RPCs
 
-The data sync protocol is responsible for letting peers exchange hypercore feed
-entries and media blobs. It happens over the secure channel.
+The secure channel is responsible for letting peers exchange hypercore feed
+entries and media blobs.
 
 Requests and responses are multiplexed over the [muxrpc][] library, for
 extensibility, and so that several possible subchannels can be established,
@@ -247,9 +247,6 @@ running various protocols:
 
 1. a `hypercore-protocol` stream
 2. a `blob-store-replication-stream` stream
-
-It's important to note that this RPC channel will be running *within* the RPC
-channel from the plaintext channel.
 
 Currently, the RPC protocol is used for coordinating the creation of hypercore
 and blob sync streams. However, it can be used for the exchange of any private
@@ -281,7 +278,7 @@ If a blob sync stream is already active, this RPC must fail.
 
 ## 5.3 `GetPeerInfo()`
 
-Like the plaintext channel's `GetPeerInfo` RPC, but includes additional
+Like the upgrade channel's `GetPeerInfo` RPC, but includes additional
 metadata now that the channel is secure. At minimum, this should include an
 object of the form
 
