@@ -128,6 +128,7 @@ Using a mono repo for the application logic has certain benefits:
       |
       ---> kappa-osm
       ---> indexes
+    - @mapeo/crypto
     - @mapeo/observations
     - @mapeo/convert
     - @mapeo/schema
