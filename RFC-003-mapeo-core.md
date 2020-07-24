@@ -142,11 +142,11 @@ Using a mono repo for the application logic has certain benefits:
       ---> kappa-osm
       ---> indexes
 
-    - @mapeo/intents // For easy-to-use RPC API
-    - @mapeo/manager // For managing multiple Mapeo instances on a single machine (see Desktop src/background/mapeo.js)
+    - @mapeo/intents // Easy-to-use RPC API
+    - @mapeo/manager // Managing multiple Mapeo instances on a single machine (see Desktop src/background/mapeo.js)
     - @mapeo/crypto //  Encapsulating the crypto modules
-    - @mapeo/project // For managing the lifecycle of a project 
-    - @mapeo/styles-builder // For creating new styles, using mapbox-style-downloader at first but encapsulate any underlying changes 
+    - @mapeo/project // To discuss later
+    - @mapeo/styles-builder // Creating new styles, using mapbox-style-downloader at first but encapsulate any underlying changes 
     - @mapeo/convert // Export/import mapeo data to different formats
     - @mapeo/observation // Logic for creating observations
     - @mapeo/filters // Any common filtering logic?
