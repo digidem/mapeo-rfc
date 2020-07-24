@@ -96,7 +96,11 @@ At a high level, these changes can be broken down into:
 The Intents API will be a high-level RPC interface for applications to directly
 integrate with the Mapeo protocol. As a client creates an 'intent', it is
 allowing the core library to make some assumptions about default behavior. This
-is a common pattern in APIs from YouTube/Microsoft Azure/Android, to smaller groups such as Cabal (`cabal-client`) library or Matrix.org `intents`.
+is a common pattern in APIs from YouTube/Microsoft Azure/Android, to smaller
+groups such as Cabal (`cabal-client`) library or Matrix.org `intents`.
+
+TODO: Write Intent API
+
 
 # 5. Mono Repo 
 
@@ -105,28 +109,37 @@ Mobile application and Desktop application themselves, but rather all of the
 dependent modules. The following list is an initial sketch and there may be
 pieces that need to be changed as exploration begins and implementation starts.
 
+Using a mono repo for the application logic has certain benefits:
+
+1. Particular versions and peer dependencies can be tested together and locked
+   together on a particular package.
+2. Development of new features that touch multiple modules and repositories can
+   be locked to a particular mono branch in `@mapeo/core`, tracking and testing
+   all dependencies at once.
+
 ```
-- @mapeo/
-    - intents
-    - protocol
+- @mapeo/core
+    - @mapeo/intents
+    - @mapeo/protocol
       |
       ---> multifeed
       ---> etc..
-    - db
+    - @mapeo/db
       |
       ---> kappa-osm
       ---> indexes
-    - observations
-    - convert
-    - schema
-    - sync
-    - syncfile
-    - server
-    - manager
-    - project
-    - settings
-    - styles
-    - styles-builder
-    - default-settings
-    - settings-builder
+    - @mapeo/observations
+    - @mapeo/convert
+    - @mapeo/schema
+    - @mapeo/sync
+    - @mapeo/syncfile
+    - @mapeo/server
+    - @mapeo/manager
+    - @mapeo/project
+    - @mapeo/settings
+    - @mapeo/styles
+    - @mapeo/styles-builder
+    - @mapeo/default-settings
+    - @mapeo/settings-builder
+    - @mapeo/iD
 ```
