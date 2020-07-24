@@ -177,6 +177,11 @@ Not included (yet) are fields for valid existing Mapeo version ranges to
 upgrade from, which will be needed for incremental updates (such as javascript
 bundles).
 
+The the major version of Mapeo Mobile and Mapeo Desktop MAY correspond to the
+secure protocol version being used, for convenience of peers deciding which upgrades to choose to download.
+
+Peers MAY choose to download any or none of the upgrade options presented to it by a remote peer.
+
 ## 4.2 `DownloadBinary(name, start=0)`
 
 This RPC is issued to begin downloading a specific application binary. The
@@ -198,7 +203,7 @@ include an object of the form
 ```js
 {
   upgradeProtocolVersion: "1.0.0",
-  secureProtocolVersion: "1.0.0"
+  secureProtocolVersion: "6.0.0"
 }
 ```
 
