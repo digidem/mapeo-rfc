@@ -300,6 +300,16 @@ This change will also include upgrading to [hypercore-protocol][] version 8.
 This is incompatible with the current version used in Mapeo, but since this new
 protocol breaks compatibility anyways, now is a good time to do it.
 
+## TODO / To be Incorporated into RFC doc
+
++ in discovery, the shared peer addresses should include:
+  - host/ip
+  - port
+  - encryption (secret-handshake, noise/xx+chacha, none)
+  - app protocol name (e.g. `mapeo://`)
+  - app protocol version (e.g. `mapeo5://`)
+  - full: `mapeo5://net:192.168.1.130:8400~shs:<PUBKEY>`
+  - N.B. SHS encodes app protocol name+version by using an "app key" exchanged at connect-time
 
 [NOISE]: http://noiseprotocol.org
 [Secret Handshake]: https://secret-handshake.club
