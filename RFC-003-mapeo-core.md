@@ -70,7 +70,6 @@ of Mapeo Core separately from the server.
 1.4. No compatible RPC package
 
 Platforms that have separate processes for their renderer and for NodeJS need two-way communication with Mapeo Core (which generally runs on the NodeJS process). Right now HTTP is used via Mapeo Server, but a simpler RPC-like interface could be used to properly retrieve and control the Mapeo Core NodeJS process.
-RPC call to properly retrieve and control events to the Mapeo Core process.
 Because there is no canonical implementation of an RPC package for Mapeo Core,
 each client application must invent it's own RPC implementation. This means
 higher barriers for testing and correctness for each application that wants to
