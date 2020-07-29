@@ -137,7 +137,7 @@ Using a mono repo for the application logic has certain benefits:
       ---> multifeed
       ---> etc..
 
-    - @mapeo/db
+    - @mapeo/db // storage  & indexes
       |
       ---> kappa-osm
       ---> indexes
