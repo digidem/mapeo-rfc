@@ -129,7 +129,31 @@ Each peer runs a TCP server locally (TODO: what ports?) and can make TCP connect
 
 ## 3.4 Peer Discovery
 
-TODO: discovery-swarm? hyperswarm?
+Mapeo will discover peers on the local network using multicast UDP sockets.
+
+For advertising the sync protocol, the multicast payload will be the JSON payload
+```js
+{
+  service: 'mapeo-sync',
+  protocolVersion: '6.0.0',
+  publicKey: 'cba01a2d9ddcc9b14cd654bd63e6664d72c71ce06751eb00dd60543bc46ee8b5'
+}
+```
+
+For advertising the upgrade protocol, the multicast payload will be the JSON payload
+```js
+{
+  service: 'mapeo-upgrade',
+  protocolVersion: '1.0.0'
+}
+```
+
+This allows the peer to see, before connecting, whether they are able to
+communicate with the remote peer. If their major versions do not match, they
+can safely assume communication over the given protocol is not possible.
+
+An implementor should only use the major (`N.x.x`) version number. A minor
+(`x.N.x`) and patch (`x.x.N`) version are included for possible future use.
 
 # 4. Upgrade Channel RPCs
 
@@ -194,26 +218,6 @@ same directory as the upgrades that it serves to others. Downloaded upgrades
 may be placed in a temporary "quarantine" directory first, so that its hash and
 digital signature can be verified, to prevent accidental retransmision of
 broken or fraudulent binaries.
-
-## 4.3 `GetPeerInfo()`
-
-Requests any metadata that the peer wishes to share. At minimum, this should
-include an object of the form
-
-```js
-{
-  upgradeProtocolVersion: "1.0.0",
-  secureProtocolVersion: "6.0.0"
-}
-```
-
-This allows the peer to see if they are able to communicate with the remote
-peer over a secure channel. If their major versions do not match, they can
-perform RPCs like the above to see if one is able to upgrade the other to a
-compatible version.
-
-An implementor should only use the major (`N.x.x`) version number. A minor
-(`x.N.x`) and patch (`x.x.N`) version are included for possible future use.
 
 ## 3.4 `Heartbeat()`
 
@@ -283,14 +287,12 @@ If a blob sync stream is already active, this RPC must fail.
 
 ## 5.3 `GetPeerInfo()`
 
-Like the upgrade channel's `GetPeerInfo` RPC, but includes additional
-metadata now that the channel is secure. At minimum, this should include an
-object of the form
+Retrieve peer metadata. This should return an object of the form
 
 ```js
 {
-  deviceName: 'android-6jx9',
-  deviceType: 'desktop' | 'mobile',
+  name: 'android-6jx9',
+  type: 'desktop' | 'mobile',
 }
 ```
 
