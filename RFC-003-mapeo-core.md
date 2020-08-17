@@ -96,9 +96,100 @@ The Intents API will be a high-level RPC interface for applications to directly
 integrate with the Mapeo protocol. As a client creates an 'intent', it is
 allowing the core library to make some assumptions about default behavior. This
 is a common pattern in APIs from YouTube/Microsoft Azure/Android, to smaller
-groups such as Cabal (`cabal-client`) library or Matrix.org `intents`.
+projects such as Cabal (`cabal-client`) or [Matrix.org AppService
+Intents](https://github.com/matrix-org/matrix-appservice-bridge#intent).
 
-TODO: Write Intent API
+
+Client: 
+
+```js
+import { MapeoClient } from 'mapeo'
+
+import type { MapeoPeer } from '@mapeo/types'
+
+const ipc = {
+  send: async (name, args) {},
+  on: (name, handler) => {},
+  removeListener: (name, handler) => {}
+}
+
+const mapeo = new MapeoClient(ipc)
+
+// Open sync page
+
+mapeo.configure({
+  announce: true
+})
+
+mapeo.peers() // => Array<MapeoPeer>
+
+mapeo.sync({peer: MapeoPeer})
+
+mapeo.on('peer-update', () => {
+  // render peers, including errors
+  mapeo.peers() 
+})
+
+mapeo.on('error', () => {
+  // Uncaught error
+})
+
+```
+
+Background:
+
+```js
+const { Mapeo, MapeoRPC } = require('mapeo')
+
+const userDataPath = '/path/to/private/configuration/data/mapeo'
+const sharedDataPath = '/home/okdistribute/Documents/Mapeo'
+
+const mapeo = new Mapeo({
+  data: userDataPath,
+  config: sharedDataPath,
+  announce: true,
+  ...options 
+})
+
+const ipc = {
+  send: async (name, args) => {},
+  on: (name, handler) => {}
+}
+
+const rpc = new MapeoRPC(mapeo, ipc)
+
+mapeo.ready(() => console.log('Backend ready'))
+
+await mapeo.configure({
+  announce: false,
+  ...options
+})
+
+const sync = await mapeo.sync({ peer: MapeoPeer })
+
+sync.on('progress', (peer: MapeoPeer) => {
+  // Render replication progress
+  mapeo.peers() => Array<MapeoPeer>
+})
+
+mapeo.on('progress', (peer: MapeoPeer) => {
+  // Render replication progress
+  mapeo.peers() => Array<MapeoPeer>
+})
+
+sync.on('done', () => {
+  // Render replication end
+})
+
+
+mapeo.on('error', (err) => {
+  // Uncaught error 
+  throw err
+})
+
+mapeo.close()
+
+```
 
 
 # 5. Mono Repo 
