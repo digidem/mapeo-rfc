@@ -226,7 +226,7 @@ Using a mono repo for the application logic has certain benefits:
     - @mapeo/settings-builder
     - @mapeo/migrate 
     - @mapeo/iD
-
+    - @mapeo/fixtures // currently in mapeo-desktop and and core repositories for testing
 
     // New libraries
 
