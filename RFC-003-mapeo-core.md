@@ -2,7 +2,7 @@
 
 This document may not accurately reflect the current architecture of 
 Mapeo Core, but it covers the proposed scope of improvements to be
-implemented over the course of 2020.
+implemented in 2021.
 
 
 # 1. Problems
