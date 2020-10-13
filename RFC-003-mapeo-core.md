@@ -12,9 +12,9 @@ Mapeo Core has several major drawbacks:
 1. Does not adhere to the Single Responsibility Principle.
 1. Entirely callback-based with no promise support.
 1. Lack of lifecycle management
-1. No compatible RPC implementation.
+1. Complex API & DRY
 
-1.1. SRP
+#### 1.1. SRP
 
 Although there have been improvements, Mapeo Core concerns itself with many
 different aspects of the Mapeo application stack including:
@@ -41,7 +41,7 @@ Desktop/Mobile client applications, which are necessary for sync to be reliable
 and can cause inconsistent behavior between applications as well as make it
 more difficult to test sync behaviors.
 
-1.2 Callback-based
+#### 1.2 Callback-based
 
 When Mapeo Core was originally developed, Promises were still quite new in
 Node.js and did not have LTS support. Now, Mapeo Core is stable on Node
@@ -52,7 +52,7 @@ Callbacks require more Node.js knowledge as the approach is quite particular to
 Node.js itself, whereas Promises adopt an easier-to-read and more approachable
 toolset, especially for automated testing and client integration.
 
-1.3 Lifecycle management
+#### 1.3 Lifecycle management
 
 Mapeo Core does not manage it's own lifecycle and the lifecycle of components
 it depends upon. Peer required dependencies `osm` and `media` must be the
@@ -73,13 +73,13 @@ In practice, client applications use Mapeo Server to instantiate a Mapeo Core
 instance, which means that the applications cannot easily control the lifecycle
 of Mapeo Core separately from the server.
 
-1.4. No compatible RPC package
+#### 1.4. Complex API & DRY
 
-Platforms that have separate processes for their renderer and for NodeJS need two-way communication with Mapeo Core (which generally runs on the NodeJS process). Right now HTTP is used via Mapeo Server, but a simpler RPC-like interface could be used to properly retrieve and control the Mapeo Core NodeJS process.
-Because there is no canonical implementation of an RPC package for Mapeo Core,
-each client application must invent it's own RPC implementation. This means
+Platforms that have separate processes for their renderer and for NodeJS need two-way communication with Mapeo Core (which generally runs on the NodeJS process). Right now HTTP is used via Mapeo Server, but a simpler interface could be used to properly retrieve and control the Mapeo Core NodeJS process.
+Because there is no canonical implementation for Mapeo Core,
+each client application must invent it's own implementation. This means
 higher barriers for testing and correctness for each application that wants to
-be comaptible with Mapeo.
+be comaptible with Mapeo Core.
 
 # 2. Proposal
 
@@ -96,9 +96,11 @@ At a high level, these changes can be broken down into:
 
 # 3. Architecture Diagram
 
+![!MapeoCoreDiagram](MapeoCoreDiagram.png)
+
 # 4. Application Intents
 
-The Intents API will be a high-level RPC interface for applications to directly
+The Intents API will be a high-level interface for applications to directly
 integrate with the Mapeo protocol. As a client creates an 'intent', it is
 allowing the core library to make some assumptions about default behavior. This
 is a common pattern in APIs from YouTube/Microsoft Azure/Android, to smaller
@@ -245,7 +247,7 @@ Using a mono repo for the application logic has certain benefits:
       takes db/media 
       ---> replicate function
 
-    - @mapeo/client // Easy-to-use RPC API (above)
+    - @mapeo/client // Easy-to-use Intents API (above)
     - @mapeo/manager // Managing live Mapeo instances on a single machine (see Desktop src/background/mapeo.js and Mobile src/backend/server.js)
     - @mapeo/project // Creating, listing, deleting, managing projects on a single machine 
     - @mapeo/crypto //  Encapsulating the crypto modules
