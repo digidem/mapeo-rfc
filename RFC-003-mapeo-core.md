@@ -11,8 +11,8 @@ Mapeo Core has several major drawbacks:
 
 1. Does not adhere to the Single Responsibility Principle.
 1. Entirely callback-based with no promise support.
-1. Lifecycle management
-1. No compatible RPC.
+1. Lack of lifecycle management
+1. No compatible RPC implementation.
 
 1.1. SRP
 
@@ -21,14 +21,20 @@ different aspects of the Mapeo application stack including:
 
 * Importing and Exporting data
 * Observations
+* Database format
+* Indexing
 * Media
-* Wifi Sync state
-* Peer state
-* Sync files
+* Sync state
+* Projects
+* Lifecycle
+* etc....
 
 This testing surface increases cognitive load for incoming developers, as the
 Mapeo Core package handles all of these without clear separation, except for
-Sync which is handled as a separate internal module. 
+Sync which is handled as a separate internal module. In the cases where Mapeo Core 
+doesn't handle something, such as Lifecycle and Projects (configuration, styles, etc) 
+this is handled in each application separately with very similar if not identical logic, 
+making it more difficult to change and update behaviors over time.
 
 Furthermore, critical pieces for sync logic exist as duplicated code in both Mapeo
 Desktop/Mobile client applications, which are necessary for sync to be reliable
@@ -105,7 +111,7 @@ Client:
 ```js
 import { MapeoClient } from 'mapeo'
 
-import type { MapeoPeer } from '@mapeo/types'
+import type { Peer } from '@mapeo/schema'
 
 const ipc = {
   send: async (name, args) {},
@@ -121,9 +127,9 @@ mapeo.configure({
   announce: true
 })
 
-mapeo.peers() // => Array<MapeoPeer>
+mapeo.peers() // => Array<Peer>
 
-mapeo.sync({peer: MapeoPeer})
+mapeo.sync({peer: Peer})
 
 mapeo.on('peer-update', () => {
   // render peers, including errors
@@ -210,34 +216,37 @@ Using a mono repo for the application logic has certain benefits:
 ```
 - @mapeo/core
     - @mapeo/schema
-    - @mapeo/sync
     - @mapeo/syncfile
     - @mapeo/server
     - @mapeo/settings
     - @mapeo/styles
     - @mapeo/default-settings
     - @mapeo/settings-builder
+    - @mapeo/migrate 
     - @mapeo/iD
 
 
     // New libraries
 
-    - @mapeo/protocol
-      |
-      ---> multifeed
-      ---> etc..
-
     - @mapeo/db // storage  & indexes
       |
       ---> kappa-osm
       ---> indexes
+      ---> replicate function
+      
+     
+    - @mapeo/media
+      |
+      ---> replicate function
 
-    - @mapeo/intents // Easy-to-use RPC API
-    - @mapeo/manager // Managing multiple Mapeo instances on a single machine (see Desktop src/background/mapeo.js)
+
+    - @mapeo/protocol
+      |
+      takes db/media 
+      ---> replicate function
+
+    - @mapeo/client // Easy-to-use RPC API (above)
+    - @mapeo/projects // Managing multiple Mapeo instances on a single machine (see Desktop src/background/mapeo.js and Mobile src/backend/server.js)
     - @mapeo/crypto //  Encapsulating the crypto modules
-    - @mapeo/project // To discuss later
-    - @mapeo/styles-builder // Creating new styles, using mapbox-style-downloader at first but encapsulate any underlying changes 
-    - @mapeo/convert // Export/import mapeo data to different formats
-    - @mapeo/observation // Logic for creating observations
-    - @mapeo/filters // Any common filtering logic?
+    - @mapeo/styles-builder // Creating new styles, using mapbox-style-downloader and encapsulate any underlying changes
 ```
