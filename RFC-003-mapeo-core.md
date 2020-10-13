@@ -142,7 +142,7 @@ mapeo.on('error', () => {
 
 ```
 
-Background:
+Node Process:
 
 ```js
 const { Mapeo, MapeoRPC } = require('mapeo')
@@ -216,7 +216,7 @@ Using a mono repo for the application logic has certain benefits:
 ```
 - @mapeo/core
     - @mapeo/schema
-    - @mapeo/syncfile
+    - @mapeo/syncfile // simple wrapper for osm-p2p-syncfile, see mapeo/core.replicateFromFile function
     - @mapeo/server
     - @mapeo/settings
     - @mapeo/styles
@@ -246,7 +246,14 @@ Using a mono repo for the application logic has certain benefits:
       ---> replicate function
 
     - @mapeo/client // Easy-to-use RPC API (above)
-    - @mapeo/projects // Managing multiple Mapeo instances on a single machine (see Desktop src/background/mapeo.js and Mobile src/backend/server.js)
+    - @mapeo/manager // Managing live Mapeo instances on a single machine (see Desktop src/background/mapeo.js and Mobile src/backend/server.js)
+    - @mapeo/project // Creating, listing, deleting, managing projects on a single machine 
     - @mapeo/crypto //  Encapsulating the crypto modules
     - @mapeo/styles-builder // Creating new styles, using mapbox-style-downloader and encapsulate any underlying changes
+    - @mapeo/sync // Syncronization state management
 ```
+
+### Testing
+
+* Tests can be in the @mapeo/core monorepository when they are integration tests that require many of these modules.
+* Tests will also be in each repository when they are unit testable and do not require multiple modules or peer dependencies
